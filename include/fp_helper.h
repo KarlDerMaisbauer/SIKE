@@ -95,6 +95,17 @@ void fp_copy(fp_t* a, fp_t* b);
 
 //---------------------------------------------------------
 //
+// copies values from a into b with respect to mask
+//
+// @param a:    number which is copied
+// @param b:    copy of a
+// @param mask: defines which parts should be copied
+//
+//---------------------------------------------------------
+void fp_copy_masked(fp_t* a, fp_t* b, uint64_t mask);
+
+//---------------------------------------------------------
+//
 // shifts given number shift times to the left
 //
 // @param a:     pointer to fp_t to be shifted
@@ -114,6 +125,16 @@ void fp_lshift(fp_t *a, uint8_t shift);
 void fp_rshift(fp_t *a, uint8_t shift);
 
 
+//---------------------------------------------------------
+//
+// gives number of bits used by a
+//
+// @param a:     fp_t
+//
+// @return       number of bits required by a
+//
+//---------------------------------------------------------
+int64_t fp_get_len(fp_t* a);
 
 
 //

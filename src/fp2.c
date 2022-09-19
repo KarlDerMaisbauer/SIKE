@@ -64,3 +64,36 @@ void fp2_divm(fp2_t* a, fp2_t* b, fp_t*mod, fp2_t* res)
     fp2_mult_inv(b, mod, &b_inv);
     fp2_mulm(a, &b_inv, mod, res);
 }
+
+void fp2_add(fp2_t* a, fp2_t*b, fp2_t* res)
+{
+    fp_add(&a->real, &b->real, &res->real);
+    fp_add(&a->img,  &b->img,  &res->img);
+}
+
+void fp2_sub(fp2_t* a, fp2_t* b, fp2_t *res)
+{
+    fp_sub(&a->real, &b->real, &res->real);
+    fp_sub(&a->img,  &b->img,  &res->img);
+}
+
+
+void fp2_zero(fp2_t* a)
+{
+    fp_zero(&a->real);
+    fp_zero(&a->img);
+}
+
+void fp2_copy(fp2_t* a, fp2_t* a_copy)
+{
+    fp_copy(&a->real, &a_copy->real);
+    fp_copy(&a->img, &a_copy->img);
+}  
+
+
+
+void fp2_copy_masked(fp2_t* a, fp2_t* b, uint64_t mask)
+{
+    fp_copy_masked(&a->real, &b->real, mask);
+    fp_copy_masked(&a->img, &b->img, mask);
+}

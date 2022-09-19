@@ -16,6 +16,18 @@ typedef uint64_t f2p_t[2*WORDS];
 
 //---------------------------------------------------------
 //
+// initializes fp_T element with the value
+// stored in val
+//
+// @param val: value of element as string
+// @param mod: modulo
+// @param a  : fp element to be initialized
+//
+//---------------------------------------------------------
+void fp_init(const char* val, fp_t* mod, fp_t* a);
+
+//---------------------------------------------------------
+//
 // calculates
 //
 // (a + b) % mod = res

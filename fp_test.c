@@ -1,14 +1,15 @@
 
 
 #include<stdio.h>
-
+#include<stdint.h>
 
 #include"fp.h"
 #include"fp_helper.h"
 #include"montgomory_redc.h"
+#include"sike_encodings_helper.h"
+#include"sike_encodings.h"
 
-
-
+#include <limits.h>
 int main(void){
     //b = 122;
     //printf("%d\n",b);
@@ -298,5 +299,76 @@ int main(void){
     fp_print(&res_divm);
     printf("\n\n\n");*/
 
+
+    printf("16char to hex:\n");
+
+    const char* strtest = "3563463634663456";
+    uint64_t strerg = c16_to_hex(strtest, 0);
+    printf("should : %16s\n", strtest);
+    printf("is     : %16lx\n",strerg);
+
+    printf("\n\n\n");
+    printf("end char to hex:\n");
+
+    const char* strtestend = "0x35634663456";
+    uint64_t strergend = c_end_to_hex(strtestend, 0);
+    printf("should : %16s\n", strtestend);
+    printf("is     : %16lx\n",strergend);
+    printf("\n\n\n");
+
+    printf("ostoi:\n");
+    const char* readnumhex = "0x2341F271773446CFC5FD681C520567BC65C783158AEA3FDC1767AE2FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+    fp_t readnum;
+    fp_zero(&readnum);
+    ostoi(readnumhex, &readnum);
+
+    printf("sould:\n");
+    printf("%192s\n", readnumhex);
+
+    for(int i = WORDS-1; i >= 0; i--)
+    {
+        printf("%16lx", readnum[i]);
+    }
+
+    printf("\n\n\n");
+
+
+    printf("ostofp:\n");
+
+    fp_t faulty;
+    fp_t faulty_tol;
+    fp_zero(&faulty);
+    fp_zero(&faulty_tol);
+    fp_t ostomod;
+    fp_zero(&ostomod);
+    ostomod[5] = 234;
+    const char* faultystr = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+    const char* faultystr_tol = "0x0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+
+    if(ostofp(faultystr, &ostomod, &faulty))
+        printf("should be and is faulty\n");
+    else
+        printf("should be but is not faulty\n");
+    fp_print(&faulty);
+    printf("\n\n\n");
+    if(ostofp(faultystr_tol, &ostomod, &faulty_tol))
+        printf("should be and is faulty\n");
+    else
+        printf("should be but is not faulty\n");
+    fp_print(&faulty_tol);
+    printf("\n\n\n");
+    
+
+
+    printf("itoos\n");
+    fp_t hexnum;
+    fp_zero(&hexnum);
+    ostofp(readnumhex, &faulty, &hexnum);
+    char* test = itoos(&hexnum);
+    for(int i = WORDS-1; i >= 0; i--)
+    {
+        printf("%16lx", hexnum[i]);
+    }
+    printf("\n%192s\n",test);
     return 0;
 }

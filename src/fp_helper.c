@@ -79,6 +79,15 @@ void fp_copy(fp_t* a, fp_t* b)
     }
 }
 
+void fp_copy_masked(fp_t* a, fp_t* b, uint64_t mask)
+{
+    for(int i = 0; i < WORDS; i++)
+    {
+        (*b)[i] = ((*b)[i] & (~mask)) + ((*a)[i] & mask);
+    }
+}
+
+
 void fp_lshift(fp_t *a, uint8_t shift)
 {
     for(uint8_t i = 0; i < shift; i++)
@@ -107,7 +116,35 @@ void fp_rshift(fp_t *a, uint8_t shift)
     }
 }
 
-
+int64_t fp_get_len(fp_t* a)
+{
+    int64_t len = 0;
+    int break_point = 0;
+    for(int i = WORDS - 1; i >= 0; i--)
+    {
+        if((*a)[i] == 0)
+            continue;
+        else
+        {
+            uint64_t num = (*a)[i];
+            for(int pos = 63; pos >= 0; pos--)
+            {
+                int mask = 1 << pos;
+                if(num & mask)
+                {
+                    len = + 1 + i * 64;
+                    break_point = 1;
+                    break;
+                }
+                else
+                    continue;
+            }
+        }
+        if(break_point)
+            break;
+    }
+    return len;
+}
 
 
 //

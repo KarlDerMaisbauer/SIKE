@@ -3,7 +3,13 @@
 #include"fp.h"
 #include"fp_helper.h"
 #include"montgomory_redc.h"
+#include"sike_encodings.h"
 
+
+void fp_init(const char* val, fp_t* mod, fp_t* a)
+{
+    ostofp(val, mod, a);
+}
 
 void fp_addm(fp_t* a, fp_t* b, fp_t* mod, fp_t* res)
 {

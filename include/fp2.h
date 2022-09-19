@@ -93,6 +93,37 @@ void fp2_mult_inv(fp2_t* a, fp_t*mod, fp2_t* res);
 //---------------------------------------------------------
 void fp2_divm(fp2_t* a, fp2_t* b, fp_t*mod, fp2_t* res);
 
+//---------------------------------------------------------
+//
+// calculates
+//
+// (a + b) = res
+//
+// @param a:   first fp2_t to be added
+// @param b:   second fp2_t tp be added
+// @param res: saves the result of the addition
+//
+//---------------------------------------------------------
+void fp2_add(fp2_t* a, fp2_t*b, fp2_t* res);
+
+//---------------------------------------------------------
+//
+// calculates
+//
+// (a - b) = res
+//
+// @param a:   first fp2_t
+// @param b:   fp2_t tp be subsracted
+// @param res: result of substraction
+//
+//---------------------------------------------------------
+void fp2_sub(fp2_t* a, fp2_t* b, fp2_t *res);
+
+void fp2_zero(fp2_t* a);
+
+void fp2_copy(fp2_t* a, fp2_t* a_copy);
+
+void fp2_copy_masked(fp2_t* a, fp2_t* b, uint64_t mask);
 
 #endif
 
