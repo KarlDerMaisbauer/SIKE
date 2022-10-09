@@ -77,6 +77,26 @@ void fp2_sub(fp2_t* a, fp2_t* b, fp2_t *res)
     fp_sub(&a->img,  &b->img,  &res->img);
 }
 
+void fp2_mul(fp2_t* a, fp2_t* b, f2p2_t* res)
+{
+    f2p_t temp_1;
+    f2p_t temp_2;
+    fp_mul(&a->real, &b->real, &temp_1);
+    fp_mul(&a->img,  &b->img,  &temp_2);
+    f2p_sub(&temp_1, &temp_2, &res->real);
+
+    fp_mul(&a->real, &b->img, &temp_1);
+    fp_mul(&a->img, &b->real, &temp_2);
+    f2p_add(&temp_1, &temp_2, &res->real);
+}
+
+void fp2_mul_mont(fp2_t* a, fp2_t* b, fp_t* mod, fp2_t* res)
+{
+    f2p2_t temp;
+    fp2_mul(a, b, &temp);
+    REDCL2(&temp, mod, res);
+}
+
 
 void fp2_zero(fp2_t* a)
 {
@@ -96,4 +116,28 @@ void fp2_copy_masked(fp2_t* a, fp2_t* b, uint64_t mask)
 {
     fp_copy_masked(&a->real, &b->real, mask);
     fp_copy_masked(&a->img, &b->img, mask);
+}
+
+
+int fp2_greater_equ_pos(fp2_t* a, fp2_t* b)
+{
+    f2p_t a_real_sq;
+    f2p_t a_img_sq;
+
+    f2p_t b_real_sq;
+    f2p_t b_img_sq;
+
+    f2p_t size_a;
+    f2p_t size_b;
+
+    fp_mul(&a->real, &a->real, &a_real_sq);
+    fp_mul(&a->img, &a->img, &a_img_sq);
+
+    fp_mul(&b->real, &b->real, &a_real_sq);
+    fp_mul(&b->img, &b->img, &a_img_sq);
+
+    f2p_add(&a_real_sq, &a_img_sq, &size_a);
+    f2p_add(&b_real_sq, &b_img_sq, &size_b);
+
+    return f2p_greater_equ_pos(&size_a, &size_b);
 }

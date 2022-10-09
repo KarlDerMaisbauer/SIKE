@@ -79,6 +79,20 @@ void init(fp_t* mod)
     fp_t n_strich_pre;
     gcd(&r, mod, &r_minus, &n_strich_pre);
     fp_additive_inverse(&n_strich_pre, &n_strich); 
+
+    
+    fp2_t one;
+    f2p2_t one2;
+    fp2_t R2;
+    fp_zero(&R2.img);
+    fp_copy(&r2, &R2.real);
+
+    fp_zero(&one.real);
+    fp_zero(&one.img);
+    one.real[0] = 1;
+    fp2_mul(&one, &R2, &one2);
+
+    REDCL2(&one2, mod, &one_mont);
 }
 
 void REDC(fp_t* T, fp_t* mod, fp_t* res)
@@ -86,28 +100,40 @@ void REDC(fp_t* T, fp_t* mod, fp_t* res)
     fp_t tmr;
     f2p_t tmrmn;
     fp_t m;
-    fp_mod_2k(T, &r, &tmr);
-    fp_mul(&tmr, &n_strich, &tmrmn);
-    //f2p_to_fp(&tmrmn, &tmr);
-    f2p_mod(&tmrmn, &r, &m);
+
+    fp_mod_2k(T, &r, &tmr);             // tmr <- T mod r
+    fp_mul(&tmr, &n_strich, &tmrmn);    // tmrmn <- tmr * n_strich
+    f2p_mod_2k(&tmrmn, &r, &m);         // m <- tmrmn mod r
 
 
-    f2p_t MN;
-    fp_t mn;
-    fp_t tmn;
-    fp_mul(&m, mod, &MN);
-    f2p_to_fp(&MN, &mn);
-    fp_add(&mn, T, &tmn);
-    fp_t t;
+
+    f2p_t mN;
+    f2p_t T2;
+    f2p_t t;
+
+    fp_to_f2p(T, &T2);
+
+    fp_mul(&m, mod, &mN);              // mN <- mod * m
+    f2p_add(&mN, &T2, &t);             // t <- T + mN
 
 
+
+    
+
+    f2p_t mod2;
+    fp_to_f2p(mod, &mod2);
     int shift = get_shift(&r);
-    fp_rshift(&t, shift);
+    f2p_rshift(&t, shift);            // t <- t / R (= (T + mN) / R)
 
-    if( fp_greater_equ_pos(&t, mod))
-        fp_copy(&t, res);
+    if( f2p_greater_equ_pos(&t, &mod2))
+        f2p_to_fp(&t, res);
     else
-        fp_sub(&t, mod, res);
+    {
+        fp_t t2;
+        f2p_to_fp(&t, &t2);
+        fp_sub(&t2, mod, res);
+    }
+        
 }
 
 void REDCL(f2p_t* T, fp_t* mod, fp_t* res)
@@ -148,6 +174,66 @@ void REDCL(f2p_t* T, fp_t* mod, fp_t* res)
         fp_copy(&t_small, res);
     }
 }
+
+void REDCL2(f2p2_t* T, fp_t* mod, fp2_t* res)
+{
+    fp2_t tmr;       // T mod R
+    f2p2_t tmrmn;   // (T mod R) * n_strich
+    fp2_t m;
+
+    f2p_mod_2k(&T->real, &r, &tmr.real);              // T mod R 
+    f2p_mod_2k(&T->img, &r, &tmr.img);                // T mod R  
+
+
+    fp_mul(&tmr.real, &n_strich, &tmrmn.real);       // (T mod R) * n_strich
+    fp_mul(&tmr.img, &n_strich, &tmrmn.img);       // (T mod R) * n_strich
+
+    f2p_mod_2k(&tmrmn.real, &r, &m.real);              // m <- (T mod R) * n_strich mod R
+    f2p_mod_2k(&tmrmn.img, &r, &m.img);              // m <- (T mod R) * n_strich mod R
+
+    f2p2_t mn;       //m*n
+    f2p2_t mnpt;     //m*n+T
+    f2p2_t t;        //m*n+T/R
+
+    f2p_t R;
+    f2p_zero(&R);
+    for(int i = 0; i < WORDS; i++)
+    {
+        R[i] = r[i];
+    }
+
+
+    fp_mul(&m.real, mod, &mn.real);         // mn <- m * N
+    fp_mul(&m.img, mod, &mn.img);           // mn <- m * N
+
+
+    f2p_add(&mn.real, &T->real, &mnpt.real);    // mnpt <- m * N + T
+    f2p_add(&mn.img, &T->img, &mnpt.img);       // mnpt <- m * N + T
+
+    f2p_div_2k(&mnpt.real, &R, &t.real);
+    f2p_div_2k(&mnpt.img, &R, &t.img);
+
+
+    fp2_t t_small;
+    f2p_to_fp(&t.real, &t_small.real);
+    f2p_to_fp(&t.img, &t_small.img);
+
+    fp2_t mod2;
+
+    fp_copy(mod, &mod2.real);
+    fp_zero(&mod2.img);
+
+    if(fp2_greater_equ_pos(&t_small, &mod2))
+    {
+        fp_sub(&t_small.real, mod, &res->real);
+        fp_copy(&t_small.img, &res->img);
+    }
+    else
+    {
+        fp2_copy(&t_small, res);
+    }
+}
+
 
 void MODMUL(fp_t* a, fp_t* b, fp_t* mod, fp_t* res)
 {

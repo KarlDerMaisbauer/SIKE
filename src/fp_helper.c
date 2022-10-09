@@ -8,6 +8,7 @@
 #include"fp_helper.h"
 
 
+
 //
 //
 //  Helper functions for the fp_t datatype
@@ -430,6 +431,15 @@ void f2p_to_fp(f2p_t* a, fp_t* b)
     }
 }
 
+void fp_to_f2p(fp_t* a, f2p_t* b)
+{
+    f2p_zero(b);
+    for(uint8_t i = 0; i < WORDS; i++)
+    {
+        (*b)[i] = (*a)[i];
+    }
+}
+
 int f2p_smaller_zero(f2p_t* a)
 {
     return ((int64_t)((*a)[2*WORDS-1]) < 0) ? 1 : 0;
@@ -735,37 +745,3 @@ void f2p_mod_2k(f2p_t*a, fp_t* mod, fp_t* res)
         f2p_to_fp(&res_part, res);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

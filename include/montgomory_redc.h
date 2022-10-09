@@ -3,12 +3,14 @@
 #define MONTGOMORY_REDC_H_
 
 #include"fp_helper.h"
+#include"fp2.h"
 
 
 fp_t n_strich;
 fp_t r;
 fp_t r_minus;
 fp_t r2;
+fp2_t one_mont;
 
 
 //---------------------------------------------------------
@@ -61,6 +63,17 @@ void REDC(fp_t* T, fp_t* mod, fp_t* res);
 //---------------------------------------------------------
 void REDCL(f2p_t* T, fp_t* mod, fp_t* res);
 
+//---------------------------------------------------------
+//
+// montgomory reduction for f2p2_t
+//
+//
+// @param T:   value to be reduced
+// @param mod: modulo
+// @param res: result of reduction
+//
+//---------------------------------------------------------
+void REDCL2(f2p2_t* T, fp_t* mod, fp2_t* res);
 
 //---------------------------------------------------------
 //

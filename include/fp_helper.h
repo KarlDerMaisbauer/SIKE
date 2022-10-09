@@ -299,6 +299,17 @@ void f2p_to_fp(f2p_t* a, fp_t* b);
 
 //---------------------------------------------------------
 //
+// turns fp_t into f2p_t
+// safes lower part of f2p_t into fp_t 
+//
+// @param a: smaller fp_t type
+// @param b: larger f2p_t type
+//
+//---------------------------------------------------------
+void fp_to_f2p(fp_t* a, f2p_t* b);
+
+//---------------------------------------------------------
+//
 // checks if f2p_t is smaller zero 
 //
 // @param a: number to be tested
