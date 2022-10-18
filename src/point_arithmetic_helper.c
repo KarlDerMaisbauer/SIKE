@@ -5,7 +5,7 @@
 #include"fp_helper.h"
 
 
-void LADDER_inner_part(proj_point_t* P0, proj_point_t* P1, proj_point_t* P2, proj_point_t* a24, uint64_t condition, fp_t* mod)
+void LADDER_inner_part(proj_point_t* P0, proj_point_t* P1, proj_point_t* P2, mont_curve_t* a24, uint64_t condition, fp_t* mod)
 {
     // a serves a substitue for the secont input of xDBLADD
     proj_point_t a_in;

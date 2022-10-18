@@ -9,19 +9,20 @@
 
 
 
-void xDBL(proj_point_t* P, proj_point_t* A24, fp_t* mod, proj_point_t* P2);
+
+void xDBL(proj_point_t* P, mont_curve_t* A24, fp_t* mod, proj_point_t* P2);
 
 
-void xDBLe(proj_point_t* P, proj_point_t* A24, int64_t e, fp_t* mod, proj_point_t* P2e);
+void xDBLe(proj_point_t* P, mont_curve_t* A24, int64_t e, fp_t* mod, proj_point_t* P2e);
 
-void xDBLADD(proj_point_t* P, proj_point_t* Q, proj_point_t* PmQ, fp_t* mod, proj_point_t* A24, proj_point_t* P2, proj_point_t* PpQ);
+void xDBLADD(proj_point_t* P, proj_point_t* Q, proj_point_t* PmQ, fp_t* mod, mont_curve_t* A24, proj_point_t* P2, proj_point_t* PpQ);
 
-void xTPL(proj_point_t* P, proj_point_t* A24, fp_t* mod, proj_point_t* P3);
+void xTPL(proj_point_t* P, mont_curve_t* A24, fp_t* mod, proj_point_t* P3);
 
-void xTPLe(proj_point_t* P, proj_point_t* A24, int64_t e, fp_t* mod, proj_point_t* P3e);
+void xTPLe(proj_point_t* P, mont_curve_t* A24, int64_t e, fp_t* mod, proj_point_t* P3e);
 
 
-void Ladder3p(fp2_t* P, fp2_t* Q, fp2_t* QmP, fp_t* m, fp2_t* PpmQ, proj_point_t* A, fp_t* mod);
+void Ladder3p(fp2_t* P, fp2_t* Q, fp2_t* QmP, fp_t* m, fp2_t* PpmQ, mont_curve_t* A, fp_t* mod);
 
 
 #endif

@@ -9,7 +9,7 @@
 
 
 
-void xDBL(proj_point_t* P, proj_point_t* A24, fp_t* mod, proj_point_t* P2)
+void xDBL(proj_point_t* P, mont_curve_t* A24, fp_t* mod, proj_point_t* P2)
 {
 
     fp2_t t0temp;
@@ -26,13 +26,13 @@ void xDBL(proj_point_t* P, proj_point_t* A24, fp_t* mod, proj_point_t* P2)
 
     fp2_t Z2p_temp;
 
-    fp2_mul_mont(&A24->Z, &t0, mod, &Z2p_temp);         // 5.
+    fp2_mul_mont(&A24->C, &t0, mod, &Z2p_temp);         // 5.
     fp2_mul_mont(&Z2p_temp, &t1, mod, &P2->X);          // 6. X_[2]p set
 
     fp2_t t1minus;
 
     fp2_sub(&t1, &t0, &t1minus);                        // 7.
-    fp2_mul_mont(&A24->X, &t1minus, mod, &t0);          // 8.
+    fp2_mul_mont(&A24->A, &t1minus, mod, &t0);          // 8.
 
     fp2_t Z2p_temp_2;
 
@@ -41,7 +41,7 @@ void xDBL(proj_point_t* P, proj_point_t* A24, fp_t* mod, proj_point_t* P2)
 }
 
 
-void xDBLe(proj_point_t* P, proj_point_t* A24, int64_t e, fp_t* mod, proj_point_t* P2e)
+void xDBLe(proj_point_t* P, mont_curve_t* A24, int64_t e, fp_t* mod, proj_point_t* P2e)
 {
     proj_point_t x_inner;
     x_inner.X = P->X;
@@ -59,7 +59,7 @@ void xDBLe(proj_point_t* P, proj_point_t* A24, int64_t e, fp_t* mod, proj_point_
     P2e->Z = x_inner.Z;
 }
 
-void xDBLADD(proj_point_t* P, proj_point_t* Q, proj_point_t* PmQ, fp_t* mod, proj_point_t* A24, proj_point_t* P2, proj_point_t* PpQ)
+void xDBLADD(proj_point_t* P, proj_point_t* Q, proj_point_t* PmQ, fp_t* mod, mont_curve_t* A24, proj_point_t* P2, proj_point_t* PpQ)
 {
     fp2_t t0;
     fp2_t t1;
@@ -86,7 +86,7 @@ void xDBLADD(proj_point_t* P, proj_point_t* Q, proj_point_t* PmQ, fp_t* mod, pro
     fp2_mul_mont(&t0sq, &Z2p, mod, &P2->X);         // 10. X_[2]p <- X_[2]p * Z_[2]p ret val fpr X_[2]p set
 
     fp2_t Z_PpQ;
-    fp2_mul_mont(&A24->X, &t2, mod, &X_QpP);        // 11. X_P+Q <- a^+_24 * t2 (X_QpP = X_P+Q)
+    fp2_mul_mont(&A24->A, &t2, mod, &X_QpP);        // 11. X_P+Q <- a^+_24 * t2 (X_QpP = X_P+Q)
     fp2_sub(&t02, &t12, &Z_PpQ);                    // 12. Z_P+Q <- t0 - t1 (Z_PpQ = Z_P+Q)
 
     fp2_t Z2p_2;
@@ -105,7 +105,7 @@ void xDBLADD(proj_point_t* P, proj_point_t* Q, proj_point_t* PmQ, fp_t* mod, pro
 }
 
 
-void xTPL(proj_point_t* P, proj_point_t* A24, fp_t* mod, proj_point_t* P3)
+void xTPL(proj_point_t* P, mont_curve_t* A24, fp_t* mod, proj_point_t* P3)
 {
     // copy variables
     fp2_t c1;
@@ -134,12 +134,12 @@ void xTPL(proj_point_t* P, proj_point_t* A24, fp_t* mod, proj_point_t* P3)
     fp2_t t5;
     fp2_copy(&t1, &c1);                             // c1 = t1 for 9.
     fp2_sub(&c1, &t2, &t1);                         // 9.  t1 <- t1 -t1
-    fp2_mul_mont(&t3, &A24->X, mod, &t5);           // 10. t5 <- t3 * A24^+
+    fp2_mul_mont(&t3, &A24->A, mod, &t5);           // 10. t5 <- t3 * A24^+
 
     fp2_t t6;
     fp2_copy(&t3, &c1);                             // c1 = t3 for 11.
     fp2_mul_mont(&c1, &t5, mod, &t3);               // 11. t3 <- t5 * t3
-    fp2_mul_mont(&t2, &A24->Z, mod, &t6);           // 12. t6 <- t2 * A24^-
+    fp2_mul_mont(&t2, &A24->C, mod, &t6);           // 12. t6 <- t2 * A24^-
 
     fp2_copy(&t2, &c1);                             // c1 = t2 for 13.
     fp2_mul_mont(&c1, &t6, mod, &t2);               // 13. t2 <- t2 * t6
@@ -165,7 +165,7 @@ void xTPL(proj_point_t* P, proj_point_t* A24, fp_t* mod, proj_point_t* P3)
 }     
 
 
-void xTPLe(proj_point_t* P, proj_point_t* A24, int64_t e, fp_t* mod, proj_point_t* P3e)
+void xTPLe(proj_point_t* P, mont_curve_t* A24, int64_t e, fp_t* mod, proj_point_t* P3e)
 {
     proj_point_t x_inner;
     x_inner.X = P->X;
@@ -182,7 +182,7 @@ void xTPLe(proj_point_t* P, proj_point_t* A24, int64_t e, fp_t* mod, proj_point_
     P3e->Z = x_inner.Z;
 }
 
-void Ladder3p(fp2_t* P, fp2_t* Q, fp2_t* QmP, fp_t* m, fp2_t* PpmQ, proj_point_t* A, fp_t* mod)
+void Ladder3p(fp2_t* P, fp2_t* Q, fp2_t* QmP, fp_t* m, fp2_t* PpmQ, mont_curve_t* A, fp_t* mod)
 {
    int len = fp_get_len(m);
 
@@ -190,7 +190,7 @@ void Ladder3p(fp2_t* P, fp2_t* Q, fp2_t* QmP, fp_t* m, fp2_t* PpmQ, proj_point_t
    proj_point_t P1;
    proj_point_t P2;
 
-   proj_point_t a24;
+   mont_curve_t a24;
 
 
    P0.X = *P;

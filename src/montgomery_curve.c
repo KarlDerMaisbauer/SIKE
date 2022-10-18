@@ -6,6 +6,8 @@
 #include"fp2.h"
 #include"fp.h"
 #include"fp_helper.h"
+#include"isogeny_strat.h"
+#include"point_arithmetic.h"
 
 void jinvariant(fp2_t* A, fp2_t* C, fp_t* mod, fp2_t* j)
 {
@@ -269,8 +271,127 @@ void iso_3_eval(fp2_t* K1, fp2_t* K2, proj_point_t* Q, fp_t* mod, proj_point_t* 
 
 
 
+
+
+
+
+void e_2_iso(mont_curve_t* A24p, proj_point_t* S, proj_point_t* opt_input, int64_t opt_input_size, fp_t* mod, isogeny_strat_t strategy ,mont_curve_t* A24p_new)
+{
+    proj_point_t queue[strategy.queue_len];
+    int8_t next_free_pos = 0;
+    int64_t strat_size = strategy.strat_len;
+
+    curve_copy(A24p, A24p_new);
+    // Push first Point S
+    queue[next_free_pos] = *S;
+    next_free_pos++;
+
+
+    for(int64_t i = 0; i < strat_size; i++)
+    {
+        int64_t curr_strat_val = strategy.strategy[i];
+        if(curr_strat_val == 0)
+        {
+            fp2_t K1;
+            fp2_t K2;
+            fp2_t K3;
+
+            // simulate take point out of queue !!!
+            next_free_pos--;
+            iso_4_curve(&(queue[next_free_pos-1]), mod, A24p_new, &K1, &K2, &K3);
+
+            //update queue
+            for(int64_t pos = 0; pos < next_free_pos; pos++)
+            {
+                proj_point_t update_pt = queue[pos];
+                iso_4_eval(&K1, &K2, &K3, &update_pt, mod, &(queue[pos]));
+            }
+            
+            // update optional input
+            for(int64_t pos = 0; pos < opt_input_size; pos++)
+            {
+               proj_point_t update_pt = opt_input[pos]; 
+               iso_4_eval(&K1, &K2, &K3, &update_pt, mod, &(opt_input[pos]));
+            }
+        }
+        else
+        {
+            proj_point_t new_val;
+            xDBLe(&(queue[next_free_pos-1]), A24p, 2*curr_strat_val, mod, &new_val);
+
+            // add new point
+            queue[next_free_pos] = new_val;
+            next_free_pos++;
+        }
+    }
+}
+
+void e_3_iso(mont_curve_t* A24, proj_point_t* S, proj_point_t* opt_input, int64_t opt_input_size, fp_t* mod, isogeny_strat_t strategy ,mont_curve_t* A24_new)
+{
+    proj_point_t queue[strategy.queue_len];
+    int8_t next_free_pos = 0;
+    int64_t strat_size = strategy.strat_len;
+
+    curve_copy(A24, A24_new);
+    // Push first Point S
+    queue[next_free_pos] = *S;
+    next_free_pos++;
+
+
+    for(int64_t i = 0; i < strat_size; i++)
+    {
+        int64_t curr_strat_val = strategy.strategy[i];
+        if(curr_strat_val == 0)
+        {
+            fp2_t K1;
+            fp2_t K2;
+
+            // simulate take point out of queue !!!
+            next_free_pos--;
+            iso_3_curve(&(queue[next_free_pos-1]), mod, A24_new, &K1, &K2);
+
+            //update queue
+            for(int64_t pos = 0; pos < next_free_pos; pos++)
+            {
+                proj_point_t update_pt = queue[pos];
+                iso_3_eval(&K1, &K2, &update_pt, mod, &(queue[pos]));
+            }
+            
+            // update optional input
+            for(int64_t pos = 0; pos < opt_input_size; pos++)
+            {
+               proj_point_t update_pt = opt_input[pos]; 
+               iso_3_eval(&K1, &K2, &update_pt, mod, &(opt_input[pos]));
+            }
+        }
+        else
+        {
+            proj_point_t new_val;
+            xTPLe(&(queue[next_free_pos-1]), A24, curr_strat_val, mod, &new_val);
+
+            // add new point
+            queue[next_free_pos] = new_val;
+            next_free_pos++;
+        }
+    }
+}
+
+
+
+
+
+
+
 void proj_pt_copy_masked(proj_point_t* a, proj_point_t* b, uint64_t mask)
 {
     fp2_copy_masked(&a->X, &b->X, mask);
     fp2_copy_masked(&a->Z, &b->Z, mask);
 }
+
+
+void curve_copy(mont_curve_t* a, mont_curve_t* b)
+{
+    fp2_copy(&a->A, &b->A);
+    fp2_copy(&a->C, &b->C);
+}
+

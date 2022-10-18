@@ -6,6 +6,7 @@
 
 #include"fp2.h"
 #include"fp.h"
+#include"isogeny_strat.h"
 
 typedef struct{
     fp2_t X;
@@ -42,11 +43,25 @@ void iso_3_curve(proj_point_t* P3, fp_t* mod, mont_curve_t* A24, fp2_t* K1, fp2_
 
 void iso_3_eval(fp2_t* K1, fp2_t* K2, proj_point_t* Q, fp_t* mod, proj_point_t* Q_strich);
 
+//---------------------------------------------------------------
+// computes large isogeny
+// note: opt_input will be changed in computation
+//---------------------------------------------------------------
+void e_2_iso(mont_curve_t* A24p, proj_point_t* S, proj_point_t* opt_input, int64_t opt_input_size, fp_t* mod, isogeny_strat_t strategy ,mont_curve_t* A24p_new);
+
+//---------------------------------------------------------------
+// computes large isogeny
+// note: opt_input will be changed in computation
+//---------------------------------------------------------------
+void e_3_iso(mont_curve_t* A24, proj_point_t* S, proj_point_t* opt_input, int64_t opt_input_size, fp_t* mod, isogeny_strat_t strategy ,mont_curve_t* A24_new);
+
 
 
 //helper functions
 
 void proj_pt_copy_masked(proj_point_t* a, proj_point_t* b, uint64_t mask);
 
+
+void curve_copy(mont_curve_t* a, mont_curve_t* b);
 
 #endif

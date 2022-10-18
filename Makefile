@@ -14,7 +14,7 @@ do:
 	$(CC) $(CCFLAGS) $(HPATH) -o $(NAME) $(CPATH)fp.c $(CPATH)fp_helper.c \
 	$(CPATH)montgomory_redc.c $(CPATH)fp2.c $(CPATH)sike_encodings_helper.c \
 	$(CPATH)sike_encodings.c $(CPATH)montgomery_curve.c $(CPATH)point_arithmetic.c \
-	$(CPATH)point_arithmetic_helper.c $(CPATH)params.c fp_test.c
+	$(CPATH)point_arithmetic_helper.c $(CPATH)params.c $(CPATH)isogeny_strat.c fp_test.c
 
 
 
