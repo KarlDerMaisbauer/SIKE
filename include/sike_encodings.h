@@ -10,6 +10,8 @@
 
 #include"fp.h"
 #include"fp2.h"
+#include"params.h"
+#include"public_params.h"
 
 
 void ostoi(const char*  value, fp_t* res);
@@ -22,6 +24,7 @@ char* itoos(fp_t* value);
 
 int64_t get_e(const char* value);
 
+void params_translate(const params_t* params_encoded, public_params_t* params_translated);
 
-
+void params_translate_redec(const params_t* params_encoded, public_params_t* params_translated);
 #endif

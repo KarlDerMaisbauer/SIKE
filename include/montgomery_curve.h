@@ -61,7 +61,12 @@ void e_3_iso(mont_curve_t* A24, proj_point_t* S, proj_point_t* opt_input, int64_
 
 void proj_pt_copy_masked(proj_point_t* a, proj_point_t* b, uint64_t mask);
 
+void proj_pt_copy(proj_point_t* a, proj_point_t* b);
+
+void proj_pt_zero(proj_point_t* a);
 
 void curve_copy(mont_curve_t* a, mont_curve_t* b);
+
+void curve_zero(mont_curve_t* a);
 
 #endif

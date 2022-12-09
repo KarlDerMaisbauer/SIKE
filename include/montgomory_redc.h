@@ -10,7 +10,12 @@ fp_t n_strich;
 fp_t r;
 fp_t r_minus;
 fp_t r2;
+fp2_t r22;
 fp2_t one_mont;
+fp2_t two_mont;
+fp2_t four_mont;
+fp2_t six_mont;
+fp2_t eight_mont;
 
 
 //---------------------------------------------------------
@@ -74,6 +79,20 @@ void REDCL(f2p_t* T, fp_t* mod, fp_t* res);
 //
 //---------------------------------------------------------
 void REDCL2(f2p2_t* T, fp_t* mod, fp2_t* res);
+
+
+//---------------------------------------------------------
+//
+// montgomory reduction for fp2_t
+//
+//
+// @param T:   value to be reduced
+// @param mod: modulo
+// @param res: result of reduction
+//
+//---------------------------------------------------------
+void REDC2(fp2_t* T, fp_t* mod, fp2_t* res);
+
 
 //---------------------------------------------------------
 //

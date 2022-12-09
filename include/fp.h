@@ -11,7 +11,7 @@
 #define  WORDS 12
 
 typedef uint64_t fp_t[WORDS];
-typedef uint64_t f2p_t[2*WORDS];
+typedef uint64_t f2p_t[4*WORDS];
 
 
 //---------------------------------------------------------

@@ -63,14 +63,24 @@ int fp_equ(fp_t* a, fp_t* b)
 
 int fp_greater_pos(fp_t* a, fp_t* b)
 {
+    //printf("\n\n");
     for(int i = WORDS-1; i >= 0; i--)
     {
-        if(!(*a)[i] && !(*b)[i])
-            continue;
+        //if(!(*a)[i] && !(*b)[i])
+        //    continue;
+            /*
         if((*a)[i] <= (*b)[i])
+        {
+            printf("%lx <= %lx\n",(*a)[i], (*b)[i]);
             return 0;
+        }
+        */
+        if((uint64_t)(*a)[i] < (uint64_t)(*b)[i])
+            return 0;
+        if((uint64_t)(*a)[i] > (uint64_t)(*b)[i])
+            return 1;
     }
-    return 1;
+    return 0;
 }
 void fp_copy(fp_t* a, fp_t* b)
 {
@@ -229,12 +239,15 @@ void fp_mul(fp_t* a, fp_t* b, f2p_t* res)
         {
             uint8_t shift = a_iter + b_iter;
             f2p_t adder;
+            f2p_t pre_res_2;
+            f2p_zero(&pre_res_2);
+            f2p_copy(&pre_res, &pre_res_2);
             f2p_zero(&adder);
             uint64_t res_up   = ((a_inner[a_iter])>>32) * ((b_inner[b_iter])>>32);
             uint64_t res_down = a_inner[a_iter] * b_inner[b_iter];
             adder[shift] = res_down;
             adder[shift+1] = res_up;
-            f2p_add(&pre_res, &adder, &pre_res);
+            f2p_add(&pre_res_2, &adder, &pre_res);
             
         } 
     }

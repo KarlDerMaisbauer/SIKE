@@ -2,7 +2,7 @@
 
 #include"montgomory_redc.h"
 #include"fp.h"
-
+#include <stdio.h>
 
 
 void gcd(fp_t* m, fp_t* n, fp_t* m_mul, fp_t* n_mul)
@@ -39,13 +39,45 @@ void gcd(fp_t* m, fp_t* n, fp_t* m_mul, fp_t* n_mul)
 
     while(!fp_equ(&r_, &zero))
     {
+        f2p_zero(&sub_big);
         fp_zero(&quotient);
         fp_div(&old_r, &r_, &quotient);
+        //printf("begin values:\n");
+        //printf("old_r:");
+        //fp_print(&old_r);
+        //printf("\n");
+        //printf("r:    ");
+        //fp_print(&r_);
+        //printf("\n");
+        //printf("quotient: ");
+        //fp_print(&quotient);
+        //printf("\n\n");
+
+
+        //printf("quotient: ");
+        //fp_print(&quotient);
+        //printf("\n");
         fp_copy(&old_r, &temp);
         fp_copy(&r_, &old_r);
         fp_mul(&quotient, &r_, &sub_big);
+        //printf("sub_big: ");
+        //f2p_print(&sub_big);
         f2p_to_fp(&sub_big, &subtractor);
+        //printf("\n");
+        //printf("subtractor: ");
+        //fp_print(&subtractor);
+        //printf("\n");
+        //printf("r_o: ");
+        //fp_print(&r_);
+        //printf("\n");
+        //printf("temp: ");
+        
+        //fp_print(&temp);
+        //printf("\n");
         fp_sub(&temp, &subtractor, &r_);
+        //printf("r:    ");
+        //fp_print(&r_);
+        //printf("\n");
 
         fp_zero(&temp);
         fp_copy(&old_a, &temp);
@@ -61,6 +93,9 @@ void gcd(fp_t* m, fp_t* n, fp_t* m_mul, fp_t* n_mul)
         fp_mul(&quotient, &b, &sub_big);
         f2p_to_fp(&sub_big, &subtractor);
         fp_sub(&temp, &subtractor, &b); 
+        //char x = getchar();
+
+        //printf("\n\n\n\n\n\n\n\n");
     }
     fp_copy(&old_a, m_mul);
     fp_copy(&old_b, n_mul);
@@ -69,18 +104,30 @@ void gcd(fp_t* m, fp_t* n, fp_t* m_mul, fp_t* n_mul)
 void init(fp_t* mod)
 {
     r[0] = 1;
-    while(fp_greater_pos(mod, &r))
+    while(!fp_greater_pos(&r, mod))
     {
+        //printf("shift\n");
         fp_lshift(&r, 1);
     }
+    //printf("r value:  ");
+    //fp_print(&r);
+    //printf("\n");
+    //printf("mod:      ");
+    //fp_print(mod);
+    //printf("\n");
+    //printf("1\n");
     f2p_t r2_part;
     fp_mul(&r, &r, &r2_part);
     f2p_mod(&r2_part, mod, &r2);
+    fp_copy(&r2, &r22.real);
+    fp_zero(&r22.img);
     fp_t n_strich_pre;
+    //printf("1.5\n");
     gcd(&r, mod, &r_minus, &n_strich_pre);
+    //printf("1.75\n");
     fp_additive_inverse(&n_strich_pre, &n_strich); 
-
-    
+    //printf("2\n");
+    // init montgomory value for 1
     fp2_t one;
     f2p2_t one2;
     fp2_t R2;
@@ -93,6 +140,56 @@ void init(fp_t* mod)
     fp2_mul(&one, &R2, &one2);
 
     REDCL2(&one2, mod, &one_mont);
+
+
+    //printf("3\n");
+    // init montgomory value for 2
+    fp2_t two;
+    f2p2_t two2;
+
+    fp_zero(&two.real);
+    fp_zero(&two.img);
+    two.real[0] = 2;
+    fp2_mul(&two, &R2, &two2);
+
+    REDCL2(&two2, mod, &two_mont);
+
+    //printf("4\n");
+    // init montgomory value for 4
+    fp2_t four;
+    f2p2_t four2;
+
+    fp_zero(&four.real);
+    fp_zero(&four.img);
+    four.real[0] = 4;
+    fp2_mul(&four, &R2, &four2);
+
+    REDCL2(&four2, mod, &four_mont);
+
+    //printf("5\n");
+    // init montgomory value for 6
+    fp2_t six;
+    f2p2_t six2;
+
+    fp_zero(&six.real);
+    fp_zero(&six.img);
+    six.real[0] = 6;
+    fp2_mul(&six, &R2, &six2);
+
+    REDCL2(&six2, mod, &six_mont);
+
+    //printf("6\n");
+    // init montgomory value for 8
+    fp2_t eight;
+    f2p2_t eight2;
+
+    fp_zero(&eight.real);
+    fp_zero(&eight.img);
+    eight.real[0] = 8;
+    fp2_mul(&eight, &R2, &eight2);
+
+    REDCL2(&eight2, mod, &eight_mont);
+
 }
 
 void REDC(fp_t* T, fp_t* mod, fp_t* res)
@@ -233,6 +330,16 @@ void REDCL2(f2p2_t* T, fp_t* mod, fp2_t* res)
         fp2_copy(&t_small, res);
     }
 }
+
+
+void REDC2(fp2_t* T, fp_t* mod, fp2_t* res)
+{
+    f2p2_t temp;
+    f2p2_zero(&temp);
+    fp2_to_f2p2(T, & temp);
+    REDCL2(&temp, mod, res);
+}
+
 
 
 void MODMUL(fp_t* a, fp_t* b, fp_t* mod, fp_t* res)

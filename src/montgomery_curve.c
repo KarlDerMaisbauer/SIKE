@@ -70,7 +70,7 @@ void get_A(fp2_t* xp, fp2_t* xq, fp2_t* xqp, fp_t* mod, fp2_t* A)
     fp2_copy(&t0, &c1);                         // c1 = t0 for 5.
     fp2_mul_mont(&c1, xqp, mod, &t0);           // 5.  t0 <- t0 * xqp
     fp2_copy(A, &c1);                           // c1 = A for 6.
-    fp2_sub(&c1, &one_mont, A);                      // 6. A <- A - 1
+    fp2_sub(&c1, &one_mont, A);                 // 6. A <- A - 1
 
     fp2_copy(&t0, &c1);                         // c1 = t0 for 7.
     fp2_add(&c1, &c1, &t0);                     // 7.  t0 <- t0 + t0
@@ -85,10 +85,10 @@ void get_A(fp2_t* xp, fp2_t* xq, fp2_t* xqp, fp_t* mod, fp2_t* A)
     fp2_copy(&t0, &c1);                         // c1 = t0 for 11.
     fp2_mult_inv(&c1, mod, &t0);                // 11. t0 <- 1/t0
     fp2_copy(A, &c1);                           // c1 = A for 12.
-    fp2_mul_mont(&c1, &t0, mod, A);             // A <- A * t0
+    fp2_mul_mont(&c1, &t0, mod, A);             // 12. A <- A * t0
 
     fp2_copy(A, &c1);                           // c1 = A for 13.
-    fp2_sub(&c1, &t1, A);                       // A <- A - t1
+    fp2_sub(&c1, &t1, A);                       // 13. A <- A - t1
 }
 
 void iso_2_curve(proj_point_t* P2, fp_t* mod, mont_curve_t* A24)
@@ -265,6 +265,7 @@ void iso_3_eval(fp2_t* K1, fp2_t* K2, proj_point_t* Q, fp_t* mod, proj_point_t* 
     fp2_mul_mont(&c1, &c1, mod, &t2);           // 7.  t2 <- t2^2
     fp2_copy(&t0, &c1);                         // c1 = t0 for 8.
     fp2_mul_mont(&c1, &c1, mod, &t0);           // 8.  t0 <- t0^2
+    
     fp2_mul_mont(&Q->X, &t2, mod, &Q_strich->X);// 9.  X_Q' <- X_Q * t2     X_Q' set
     fp2_mul_mont(&Q->Z, &t0, mod, &Q_strich->Z);// 10  Z_Q' <- Z_Q * t0     Z_Q' set
 }
@@ -395,3 +396,22 @@ void curve_copy(mont_curve_t* a, mont_curve_t* b)
     fp2_copy(&a->C, &b->C);
 }
 
+
+void curve_zero(mont_curve_t* a)
+{
+    fp2_zero(&a->A);
+    fp2_zero(&a->C);
+}
+
+
+void proj_pt_copy(proj_point_t* a, proj_point_t* b)
+{
+    fp2_copy(&a->X, &b->X);
+    fp2_copy(&a->Z, &b->Z);
+}
+
+void proj_pt_zero(proj_point_t* a)
+{
+    fp2_zero(&a->X);
+    fp2_zero(&a->Z);
+}

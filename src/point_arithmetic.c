@@ -44,19 +44,17 @@ void xDBL(proj_point_t* P, mont_curve_t* A24, fp_t* mod, proj_point_t* P2)
 void xDBLe(proj_point_t* P, mont_curve_t* A24, int64_t e, fp_t* mod, proj_point_t* P2e)
 {
     proj_point_t x_inner;
-    x_inner.X = P->X;
-    x_inner.Z = P->Z;
+    proj_pt_copy(P, &x_inner);
 
     for(int64_t i = 1; i <= e; i++)
     {
         proj_point_t x_part;
+        proj_pt_zero(&x_part);
         xDBL(&x_inner, A24, mod, &x_part);
-        x_inner.X = x_part.X;
-        x_inner.Z = x_part.Z;
+        proj_pt_copy(&x_part, &x_inner);
         
     }
-    P2e->X = x_inner.X;
-    P2e->Z = x_inner.Z;
+    proj_pt_copy(&x_inner, P2e);
 }
 
 void xDBLADD(proj_point_t* P, proj_point_t* Q, proj_point_t* PmQ, fp_t* mod, mont_curve_t* A24, proj_point_t* P2, proj_point_t* PpQ)
@@ -64,7 +62,7 @@ void xDBLADD(proj_point_t* P, proj_point_t* Q, proj_point_t* PmQ, fp_t* mod, mon
     fp2_t t0;
     fp2_t t1;
     fp2_add(&P->X, &P->Z, &t0);                    // 1. t0 <- Xp + Zp
-    fp2_sub(&P->X, &P->Z, &t1);                    // 2. t0 <- Xp - Zp
+    fp2_sub(&P->X, &P->Z, &t1);                    // 2. t1 <- Xp - Zp
 
     fp2_t t0sq;
     fp2_t t2;
@@ -79,11 +77,11 @@ void xDBLADD(proj_point_t* P, proj_point_t* Q, proj_point_t* PmQ, fp_t* mod, mon
     fp2_t Z2p;
     fp2_t t12;
     fp2_mul_mont(&t2, &t2, mod, &Z2p);              // 7.  Z_[2]p <- t2^2 (Z2p = Z_[2]p)
-    fp2_mul_mont(&t2, &X_QpP, mod, &t12);           // 8.  t1 <- t1 * X_R+Q (t12 = t1)
+    fp2_mul_mont(&t1, &X_QpP, mod, &t12);           // 8.  t1 <- t1 * X_R+Q (t12 = t1)
 
 
     fp2_sub(&t0sq, &Z2p, &t2);                      // 9.  t2 <- X_[2]p - Z_[2]p
-    fp2_mul_mont(&t0sq, &Z2p, mod, &P2->X);         // 10. X_[2]p <- X_[2]p * Z_[2]p ret val fpr X_[2]p set
+    fp2_mul_mont(&t0sq, &Z2p, mod, &P2->X);         // 10. X_[2]p <- X_[2]p * Z_[2]p ret val for X_[2]p set
 
     fp2_t Z_PpQ;
     fp2_mul_mont(&A24->A, &t2, mod, &X_QpP);        // 11. X_P+Q <- a^+_24 * t2 (X_QpP = X_P+Q)
@@ -168,47 +166,51 @@ void xTPL(proj_point_t* P, mont_curve_t* A24, fp_t* mod, proj_point_t* P3)
 void xTPLe(proj_point_t* P, mont_curve_t* A24, int64_t e, fp_t* mod, proj_point_t* P3e)
 {
     proj_point_t x_inner;
-    x_inner.X = P->X;
-    x_inner.Z = P->Z;
+    proj_pt_copy(P, &x_inner);
     for(int64_t i = 1; i <= e; i++)
     {
         proj_point_t x_part;
+        proj_pt_zero(&x_part);
         xTPL(&x_inner, A24, mod, &x_part);
-        x_inner.X = x_part.X;
-        x_inner.Z = x_part.Z;
+        proj_pt_copy(&x_part, &x_inner);
         
     }
-    P3e->X = x_inner.X;
-    P3e->Z = x_inner.Z;
+    proj_pt_copy(&x_inner, P3e);
 }
 
 void Ladder3p(fp2_t* P, fp2_t* Q, fp2_t* QmP, fp_t* m, fp2_t* PpmQ, mont_curve_t* A, fp_t* mod)
 {
    int len = fp_get_len(m);
 
-   proj_point_t P0;
-   proj_point_t P1;
-   proj_point_t P2;
+    proj_point_t P0;
+    proj_point_t P1;
+    proj_point_t P2;
 
-   mont_curve_t a24;
+    mont_curve_t a24;
+    fp2_copy(&one_mont, &a24.C);
+
+    fp2_t a24_val;
+    fp2_zero(&a24_val);
+    fp2_add(&A->A, &four_mont, &a24_val);
+    fp2_copy(&a24_val, &a24.A);
 
 
-   P0.X = *P;
-   P0.Z = one_mont;
+    P0.X = *P;
+    P0.Z = one_mont;
 
-   P1.X = *Q;
-   P1.Z = one_mont;
+    P1.X = *Q;
+    P1.Z = one_mont;
 
-   P2.X = *QmP;
-   P2.Z = one_mont;
+    P2.X = *QmP;
+    P2.Z = one_mont;
 
-    
+        
 
     for(int i =  0; i < len; i++)
     {
-        uint64_t condition = 1 & (*m)[0];
+        uint64_t condition = 1 & ((*m)[(i/64)]) << (i % 64);
         LADDER_inner_part(&P0, &P1, &P2, &a24, condition, mod);
     }
-
+    fp2_copy(&P1.X, PpmQ);
 
 }

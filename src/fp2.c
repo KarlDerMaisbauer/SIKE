@@ -98,6 +98,17 @@ void fp2_mul_mont(fp2_t* a, fp2_t* b, fp_t* mod, fp2_t* res)
 }
 
 
+void fp2_div_mont(fp2_t* a, fp2_t* b, fp_t* mod, fp2_t* res)
+{
+    fp2_t temp;
+    fp2_divm(a, b, mod, &temp);
+    f2p2_t temp2;
+    fp2_mul(&temp, &r22, &temp2);
+    REDCL2(&temp2, mod, res);
+
+}
+
+
 void fp2_zero(fp2_t* a)
 {
     fp_zero(&a->real);
@@ -140,4 +151,21 @@ int fp2_greater_equ_pos(fp2_t* a, fp2_t* b)
     f2p_add(&b_real_sq, &b_img_sq, &size_b);
 
     return f2p_greater_equ_pos(&size_a, &size_b);
+}
+
+
+
+
+
+void fp2_to_f2p2(fp2_t* a, f2p2_t* res)
+{
+    fp_to_f2p(&a->real, &res->real);
+    fp_to_f2p(&a->img,  &res->img);
+}
+
+
+void f2p2_zero(f2p2_t* a)
+{
+    f2p_zero(&a->real);
+    f2p_zero(&a->img);
 }

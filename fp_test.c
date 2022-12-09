@@ -1,13 +1,18 @@
 
 
-#include<stdio.h>
-#include<stdint.h>
+#include <stdio.h>
+#include <stdint.h>
 
-#include"fp.h"
-#include"fp_helper.h"
-#include"montgomory_redc.h"
-#include"sike_encodings_helper.h"
-#include"sike_encodings.h"
+#include "fp.h"
+#include "fp_helper.h"
+#include "montgomory_redc.h"
+#include "montgomery_curve.h"
+
+#include "sike_encodings_helper.h"
+#include "sike_encodings.h"
+#include "params.h"
+#include "point_arithmetic.h"
+
 
 #include <limits.h>
 int main(void){
@@ -242,7 +247,7 @@ int main(void){
     printf("\n\n\n");
     */
 
-
+/*
     // montomory
     printf("montgomory mod:\n");
 
@@ -271,6 +276,7 @@ int main(void){
     printf("=\n");
     fp_print(&mont_res);
     printf("\n\n\n");
+    */
 
 /*
     printf("divm:\n");
@@ -299,7 +305,7 @@ int main(void){
     fp_print(&res_divm);
     printf("\n\n\n");*/
 
-
+/*
     printf("16char to hex:\n");
 
     const char* strtest = "3563463634663456";
@@ -369,6 +375,87 @@ int main(void){
     {
         printf("%16lx", hexnum[i]);
     }
-    printf("\n%192s\n",test);
+    printf("\n%192s\n",test);*/
+
+    fp_t mod;
+    fp_zero(&mod);
+    ostoi(SIKEp434.p, &mod);
+    //fp_print(&mod);
+    //printf("bef init\n");
+    init(&mod);
+    //printf("aft init\n");
+    mont_curve_t A;
+    curve_zero(&A);
+    fp2_copy(&six_mont, &A.A);
+    fp2_copy(&one_mont, &A.C);
+
+    public_params_t test;
+    //printf("\n");
+    params_translate(&SIKEp434, &test);
+
+    public_params_t translated;
+
+    params_translate_redec(&SIKEp434, &translated);
+
+    mont_curve_t A_new;
+    fp2_t erg;
+
+    fp_t one;
+    fp_zero(&one);
+    one[0] = 1;
+
+    Ladder3p(&translated.xP2, &translated.xQ2, &translated.xR2, &one, &erg, &A_new, &mod);
+    fp2_t erg_red;
+
+    REDC2(&erg, &mod, &erg_red);
+    
+    fp_print(&erg_red.real);
+    printf("\n");
+    fp_print(&erg_red.img);
+    /*
+    printf("\np:\n");
+    fp_print(&test.p);
+    printf("\n");
+
+    printf("\ne2:\n");
+    fp_print(&test.e2);
+    printf("\n");
+
+    printf("\ne3:\n");
+    fp_print(&test.e3);
+    printf("\n");
+
+    //xQ2
+    printf("\nQ2:\n");
+    printf("\n");
+    fp_print(&test.xQ2.real);
+    printf("\n");
+
+    fp_print(&test.xQ2.img);
+    printf("\n");
+
+
+    //xP2
+    printf("\nP2:\n");
+    printf("\n");
+    fp_print(&test.xP2.real);
+    printf("\n");
+
+    fp_print(&test.xP2.img);
+    printf("\n");
+
+    //xR2
+    printf("\nR2:\n");
+    printf("\n");
+    fp_print(&test.xR2.real);
+    printf("\n");
+
+    fp_print(&test.xR2.img);
+    printf("\n");
+
+    printf("montgomory reduced params\n");*/
+    
     return 0;
 }
+
+

@@ -153,6 +153,20 @@ void fp2_mul_mont(fp2_t* a, fp2_t* b, fp_t* mod, fp2_t* res);
 
 //---------------------------------------------------------
 //
+// performs division in montgomory form
+//
+// a / b = res
+//
+// @param a:   first fp2_t in montgomery form
+// @param b:   second fp2_t in montgomery form
+// @param mod: modulo 
+// @param res: result of division
+//
+//---------------------------------------------------------
+void fp2_div_mont(fp2_t* a, fp2_t* b, fp_t* mod, fp2_t* res);
+
+//---------------------------------------------------------
+//
 // sets fp2_t to 0
 //
 //
@@ -194,6 +208,11 @@ void fp2_copy_masked(fp2_t* a, fp2_t* b, uint64_t mask);
 // 
 //---------------------------------------------------------
 int fp2_greater_equ_pos(fp2_t* a, fp2_t* b);
+
+void fp2_to_f2p2(fp2_t* a, f2p2_t* res);
+
+
+void f2p2_zero(f2p2_t* a);
 
 #endif
 
