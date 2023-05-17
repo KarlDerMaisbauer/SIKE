@@ -8,6 +8,8 @@
 #include"fp.h"
 #include"isogeny_strat.h"
 
+#include <stdio.h>
+
 typedef struct{
     fp2_t X;
     fp2_t Z;
@@ -32,6 +34,8 @@ void jinvariant(fp2_t* A, fp2_t* C, fp_t* mod, fp2_t* j);
 void get_A(fp2_t* xp, fp2_t* xq, fp2_t* xqp, fp_t* mod, fp2_t* A);
 
 void iso_2_curve(proj_point_t* P2, fp_t* mod, mont_curve_t* A24);
+
+void iso_2_curve_no_redec(proj_point_t* P2, fp_t* mod, mont_curve_t* A24);
 
 void iso_2_eval(proj_point_t* P2,proj_point_t* Q, fp_t* mod, proj_point_t* Q_strich);
 
@@ -68,5 +72,8 @@ void proj_pt_zero(proj_point_t* a);
 void curve_copy(mont_curve_t* a, mont_curve_t* b);
 
 void curve_zero(mont_curve_t* a);
+
+void proj_pt_fprintf(FILE* file, proj_point_t* p);
+
 
 #endif

@@ -3,6 +3,7 @@
 #include"montgomory_redc.h"
 #include"fp.h"
 #include <stdio.h>
+#include <assert.h>
 
 
 void gcd(fp_t* m, fp_t* n, fp_t* m_mul, fp_t* n_mul)
@@ -42,16 +43,16 @@ void gcd(fp_t* m, fp_t* n, fp_t* m_mul, fp_t* n_mul)
         f2p_zero(&sub_big);
         fp_zero(&quotient);
         fp_div(&old_r, &r_, &quotient);
-        //printf("begin values:\n");
-        //printf("old_r:");
-        //fp_print(&old_r);
-        //printf("\n");
-        //printf("r:    ");
-        //fp_print(&r_);
-        //printf("\n");
-        //printf("quotient: ");
-        //fp_print(&quotient);
-        //printf("\n\n");
+        /*printf("begin values:\n");
+        printf("old_r:    ");
+        fp_print(&old_r);
+        printf("\n");
+        printf("r:        ");
+        fp_print(&r_);
+        printf("\n");
+        printf("quotient: ");
+        fp_print(&quotient);
+        printf("\n\n");*/
 
 
         //printf("quotient: ");
@@ -103,12 +104,23 @@ void gcd(fp_t* m, fp_t* n, fp_t* m_mul, fp_t* n_mul)
 
 void init(fp_t* mod)
 {
+    fp_zero(&n_strich);
+    fp_zero(&r);
+    fp_zero(&r_minus);
+    fp_zero(&r2);
+    fp2_zero(&one_mont);
+    fp2_zero(&two_mont);
+    fp2_zero(&four_mont);
+    fp2_zero(&six_mont);
+    fp2_zero(&eight_mont);
+    f2p_zero(&validity_tester);
     r[0] = 1;
     while(!fp_greater_pos(&r, mod))
     {
         //printf("shift\n");
         fp_lshift(&r, 1);
     }
+    fp_mul(mod, &r, &validity_tester);
     //printf("r value:  ");
     //fp_print(&r);
     //printf("\n");
@@ -122,12 +134,36 @@ void init(fp_t* mod)
     fp_copy(&r2, &r22.real);
     fp_zero(&r22.img);
     fp_t n_strich_pre;
+    fp_t r_minus_pre;
     //printf("1.5\n");
-    gcd(&r, mod, &r_minus, &n_strich_pre);
+    gcd(&r, mod, &r_minus_pre, &n_strich_pre);
     //printf("1.75\n");
     fp_additive_inverse(&n_strich_pre, &n_strich); 
+    fp_additive_inverse(&r_minus_pre, &r_minus);
+
+    fp2_zero(&n_strich2);
+    fp_copy(&n_strich, &n_strich2.real);
+    //fp_copy(&n_strich_pre, &n_strich);
+    //fp_copy(&r_minus_pre, &r_minus);
     //printf("2\n");
     // init montgomory value for 1
+    /*
+    f2p_t test;
+    fp_t test2;
+    fp_t test3;
+    
+    f2p_zero(&test);
+    fp_zero(&test2);
+    fp_zero(&test3);
+    fp_mul(mod, &n_strich, &test);
+    f2p_mod_2k(&test, &r, &test2);
+    fp_sub(&test2, &r, &test3);
+
+    fp_print(&test3);
+    LINE
+    */
+
+
     fp2_t one;
     f2p2_t one2;
     fp2_t R2;
@@ -194,6 +230,10 @@ void init(fp_t* mod)
 
 void REDC(fp_t* T, fp_t* mod, fp_t* res)
 {
+    f2p_t temp;
+    fp_to_f2p(T, & temp);
+    REDCL(&temp, mod, res);
+    /*
     fp_t tmr;
     f2p_t tmrmn;
     fp_t m;
@@ -230,22 +270,49 @@ void REDC(fp_t* T, fp_t* mod, fp_t* res)
         f2p_to_fp(&t, &t2);
         fp_sub(&t2, mod, res);
     }
-        
+        */
 }
 
 void REDCL(f2p_t* T, fp_t* mod, fp_t* res)
 {
+    
+    if(f2p_smaller_zero(T) || f2p_greater_equ_pos(T, &validity_tester))
+    {
+        f2p_t temp;
+        fp_t temp_s;
+        fp_zero(&temp_s);
+        f2p_zero(&temp);
+        f2p_copy(T, &temp);
+        //f2p_print(&temp);
+        //LINE
+        f2p_mod(&temp, mod, &temp_s);
+        //fp_print(&temp_s);
+        //LINE
+        fp_to_f2p(&temp_s, T);
+    }
+    assert(!f2p_smaller_zero(T) && "inputnumber is smaller 0\n");
+    assert(!(f2p_greater_equ_pos(T, &validity_tester)) && "input number is out of range\n");
+    f2p_t test;
+    f2p_zero(&test);
+    fp_mul(&r, mod, &test);
+
     fp_t tmr;       // T mod R
     f2p_t tmrmn;    // (T mod R) * n_strich
     fp_t m;
+    fp_zero(&tmr);
+    f2p_zero(&tmrmn);
+    fp_zero(&m);
 
-    f2p_mod_2k(T, &r, &tmr);              // T mod R     
+    f2p_mod_2k(T, &r, &tmr);              // T mod R
     fp_mul(&tmr, &n_strich, &tmrmn);       // (T mod R) * n_strich
     f2p_mod_2k(&tmrmn, &r, &m);              // m <- (T mod R) * n_strich mod R
 
     f2p_t mn;       //m*n
     f2p_t mnpt;     //m*n+T
     f2p_t t;        //m*n+T/R
+    f2p_zero(&mn);
+    f2p_zero(&mnpt);
+    f2p_zero(&t);
 
     f2p_t R;
     f2p_zero(&R);
@@ -256,14 +323,20 @@ void REDCL(f2p_t* T, fp_t* mod, fp_t* res)
     fp_mul(&m, mod, &mn);
     f2p_add(&mn, T, &mnpt);
     f2p_div_2k(&mnpt, &R, &t);
-
     fp_t t_small;
     for(int i = 0; i < WORDS; i++)
     {
         t_small[i] = t[i];
     }
     if(fp_greater_equ_pos(&t_small, mod))
-    {
+    {/*
+        printf("Oh no\n");
+        fp_print(&t_small);
+        LINE
+        printf("is greater equ than\n");
+        fp_print(mod);
+        LINE
+        LINE*/
         fp_sub(&t_small, mod, res);
     }
     else
@@ -273,7 +346,49 @@ void REDCL(f2p_t* T, fp_t* mod, fp_t* res)
 }
 
 void REDCL2(f2p2_t* T, fp_t* mod, fp2_t* res)
-{
+{   /*
+    if(f2p_smaller_zero(&(T->real)))
+    {
+        f2p_t temp;
+        fp_t temp2;
+        fp_zero(&temp2);
+        f2p_copy(&(T->real), &temp);
+        f2p_mod(&temp, mod, &temp2);
+        fp_to_f2p(&temp2, &(T->real));
+    }
+    if(f2p_smaller_zero(&(T->img)))
+    {
+        f2p_t temp;
+        fp_t temp2;
+        fp_zero(&temp2);
+        f2p_copy(&(T->img), &temp);
+        f2p_mod(&temp, mod, &temp2);
+        fp_to_f2p(&temp2, &(T->img));
+    }
+    if(f2p_greater_equ_pos(&(T->real), &validity_tester))
+    {
+        f2p_t temp;
+        fp_t temp2;
+        fp_zero(&temp2);
+        f2p_copy(&(T->real), &temp);
+        f2p_mod(&temp, mod, &temp2);
+        fp_to_f2p(&temp2, &(T->real));
+    }
+    if(f2p_greater_equ_pos(&(T->img), &validity_tester))
+    {
+        f2p_t temp;
+        fp_t temp2;
+        fp_zero(&temp2);
+        f2p_copy(&(T->img), &temp);
+        f2p_mod(&temp, mod, &temp2);
+        fp_to_f2p(&temp2, &(T->img));
+    }*/
+    fp2_t modulo;
+    fp2_zero(&modulo);
+    fp_copy(mod, &modulo.real);
+    REDCL(&(T->real), mod, &(res->real));
+    REDCL(&(T->img), mod, &(res->img));
+    /*
     fp2_t tmr;       // T mod R
     f2p2_t tmrmn;   // (T mod R) * n_strich
     fp2_t m;
@@ -282,8 +397,9 @@ void REDCL2(f2p2_t* T, fp_t* mod, fp2_t* res)
     f2p_mod_2k(&T->img, &r, &tmr.img);                // T mod R  
 
 
-    fp_mul(&tmr.real, &n_strich, &tmrmn.real);       // (T mod R) * n_strich
-    fp_mul(&tmr.img, &n_strich, &tmrmn.img);       // (T mod R) * n_strich
+    //fp_mul(&tmr.real, &n_strich, &tmrmn.real);       // (T mod R) * n_strich
+    //fp_mul(&tmr.img, &n_strich, &tmrmn.img);       // (T mod R) * n_strich
+    fp2_mul(&tmr, &n_strich2, &tmrmn);
 
     f2p_mod_2k(&tmrmn.real, &r, &m.real);              // m <- (T mod R) * n_strich mod R
     f2p_mod_2k(&tmrmn.img, &r, &m.img);              // m <- (T mod R) * n_strich mod R
@@ -294,21 +410,31 @@ void REDCL2(f2p2_t* T, fp_t* mod, fp2_t* res)
 
     f2p_t R;
     f2p_zero(&R);
-    for(int i = 0; i < WORDS; i++)
-    {
-        R[i] = r[i];
-    }
+    fp_to_f2p(&r, &R);
+
+    //for(int i = 0; i < WORDS; i++)
+    //{
+    //    R[i] = r[i];
+    //}
 
 
-    fp_mul(&m.real, mod, &mn.real);         // mn <- m * N
-    fp_mul(&m.img, mod, &mn.img);           // mn <- m * N
+    //fp_mul(&m.real, mod, &mn.real);         // mn <- m * N
+    //fp_mul(&m.img, mod, &mn.img);           // mn <- m * N
+    fp2_mul(&m, &modulo, &mn);
+
+    //f2p_add(&mn.real, &T->real, &mnpt.real);    // mnpt <- m * N + T
+    //f2p_add(&mn.img, &T->img, &mnpt.img);       // mnpt <- m * N + T
+    f2p2_add(&mn, T, &mnpt);
 
 
-    f2p_add(&mn.real, &T->real, &mnpt.real);    // mnpt <- m * N + T
-    f2p_add(&mn.img, &T->img, &mnpt.img);       // mnpt <- m * N + T
+    //f2p_div_2k(&mnpt.real, &R, &t.real);
+    //f2p_div_2k(&mnpt.img, &R, &t.img);
+    f2p2_t R_p;
+    f2p2_zero(&R_p);
+    f2p_copy(&R, &R_p.real);
+    f2p2_div(&mnpt, &R_p, mod, &t);
 
-    f2p_div_2k(&mnpt.real, &R, &t.real);
-    f2p_div_2k(&mnpt.img, &R, &t.img);
+    
 
 
     fp2_t t_small;
@@ -329,13 +455,13 @@ void REDCL2(f2p2_t* T, fp_t* mod, fp2_t* res)
     {
         fp2_copy(&t_small, res);
     }
+    */
 }
 
 
 void REDC2(fp2_t* T, fp_t* mod, fp2_t* res)
 {
     f2p2_t temp;
-    f2p2_zero(&temp);
     fp2_to_f2p2(T, & temp);
     REDCL2(&temp, mod, res);
 }
@@ -435,4 +561,53 @@ int get_shift(fp_t* a)
         fp_rshift(&a_in, 1);
     }
     return ctr;
+}
+
+
+
+void fp_to_mont(fp_t* a, fp_t* mod, fp_t* a_redc)
+{
+    f2p_t mul_temp;
+    fp_mul(a, &r2, &mul_temp);
+    REDCL(&mul_temp, mod, a_redc);
+}
+
+void fp2_to_mont(fp2_t* a, fp_t* mod, fp2_t* a_redc)
+{
+    f2p2_t mul_temp;
+    fp2_mul(a, &r22, &mul_temp);
+    REDCL2(&mul_temp, mod, a_redc);
+}
+
+void pt_to_mont(proj_point_t* a, fp_t* mod, proj_point_t* a_redc)
+{
+    fp2_to_mont(&(a->X), mod, &(a_redc->X));
+    fp2_to_mont(&(a->Z), mod, &(a_redc->Z));
+}
+
+
+void fp_from_mont(fp_t* a_redc, fp_t* mod, fp_t* a)
+{
+    REDC(a_redc, mod, a);
+}
+
+void f2p_from_mont(f2p_t* a_redc, fp_t* mod, fp_t* a)
+{
+    REDCL(a_redc, mod, a);
+}
+
+void fp2_from_mont(fp2_t* a_redc, fp_t* mod, fp2_t* a)
+{
+    REDC2(a_redc, mod, a);
+}
+
+void f2p2_from_mont(f2p2_t* a_redc, fp_t* mod, fp2_t* a)
+{
+   REDCL2(a_redc, mod, a); 
+}
+
+void pt_from_mont(proj_point_t* a_redc, fp_t* mod, proj_point_t* a)
+{
+    fp2_from_mont(&(a_redc->X), mod, &(a->X));
+    fp2_from_mont(&(a_redc->Z), mod, &(a->Z));
 }

@@ -11,6 +11,16 @@ typedef struct{
    int64_t queue_len;
 } isogeny_strat_t;
 
+extern const isogeny_strat_t p434_e2;
+extern const isogeny_strat_t p434_e3;
 
+extern const isogeny_strat_t p503_e2;
+extern const isogeny_strat_t p503_e3;
+
+extern const isogeny_strat_t p610_e2;
+extern const isogeny_strat_t p610_e3;
+
+extern const isogeny_strat_t p751_e2;
+extern const isogeny_strat_t p751_e3;
 
 #endif

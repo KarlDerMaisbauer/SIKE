@@ -3,7 +3,8 @@
 #define FP_HELPER_H_
 
 
-#include"fp.h"
+#include "fp.h"
+#include "stdio.h"
 
 #define LINE printf("\n");
 
@@ -386,6 +387,19 @@ void f2p_rshift(f2p_t *a, uint8_t shift);
 //---------------------------------------------------------
 void f2p_add(f2p_t* a, f2p_t* b, f2p_t* res);
 
+//---------------------------------------------------------
+//
+// adds two f2p_t together 
+//
+// a + b = res
+//
+// @param a:   first f2p_t to be added
+// @param b:   second f2p_t tp be added
+// @param res: saves the result of the addition
+//
+//---------------------------------------------------------
+void f2p_addm(f2p_t* a, f2p_t* b, fp_t* mod, fp_t* res);
+
 
 //---------------------------------------------------------
 //
@@ -425,6 +439,20 @@ void f2p_sub(f2p_t*a, f2p_t*b, f2p_t*res);
 //
 //---------------------------------------------------------
 void f2p_mul(f2p_t* a, f2p_t* b, f2p_t* res);
+
+//---------------------------------------------------------
+//
+// multiplies two f2p_t 
+//
+// a * b % mod = res
+//
+// @param a:   first f2p_t
+// @param b:   second f2p_t
+// @param res: result of multiplication
+//             
+//
+//---------------------------------------------------------
+void f2p_mulm(f2p_t* a, f2p_t* b, fp_t* mod, fp_t* res);
 
 //---------------------------------------------------------
 //
@@ -473,7 +501,7 @@ void f2p_div_2k(f2p_t* a, f2p_t* div, f2p_t* res);
 //
 // a % mod = res
 //
-// @param a:   fp_t
+// @param a:   f2p_t
 // @param mod: modulo
 // @param res: result of modulo
 //
@@ -481,25 +509,22 @@ void f2p_div_2k(f2p_t* a, f2p_t* div, f2p_t* res);
 void f2p_mod_2k(f2p_t*a, fp_t* mod, fp_t* res);
 
 
+void fp_bitwise_and(fp_t* a, fp_t* b, fp_t* res);
+
+void f2p_bitwise_and(f2p_t* a, f2p_t* b, f2p_t* res);
 
 
+//
+//
+//  File stuff for testing
+//
+//
 
+void fp_fprintf(FILE* file, fp_t* p);
 
+void f2p_fprintf(FILE* file, f2p_t* p);
 
+int fp_is_2k(fp_t* a);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void fp_mul_small(fp_t* a, uint64_t b, f2p_t* res);
 #endif

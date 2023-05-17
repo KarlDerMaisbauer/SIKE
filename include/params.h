@@ -43,6 +43,10 @@ typedef struct{
 
 const params_t SIKEp434;
 
+const params_t SIKEp503;
+
+const params_t SIKEp610;
+
 const params_t SIKEp751;
 
 #endif

@@ -5,6 +5,9 @@
 
 #include"fp.h"
 
+
+#include <stdio.h>
+
 typedef struct{
     fp_t real;
     fp_t img;
@@ -153,6 +156,21 @@ void fp2_mul_mont(fp2_t* a, fp2_t* b, fp_t* mod, fp2_t* res);
 
 //---------------------------------------------------------
 //
+// calculates
+//
+// a^(-1)
+//
+// in montgomory form
+//
+// @param a:   fp2
+// @param mod: modulo
+// @param res: multiplicative inverse of a
+//
+//---------------------------------------------------------
+void fp2_mult_inv_mont(fp2_t* a, fp_t*mod, fp2_t* res);
+
+//---------------------------------------------------------
+//
 // performs division in montgomory form
 //
 // a / b = res
@@ -209,10 +227,66 @@ void fp2_copy_masked(fp2_t* a, fp2_t* b, uint64_t mask);
 //---------------------------------------------------------
 int fp2_greater_equ_pos(fp2_t* a, fp2_t* b);
 
+int fp2_equ(fp2_t* a, fp2_t* b);
+
 void fp2_to_f2p2(fp2_t* a, f2p2_t* res);
 
 
 void f2p2_zero(f2p2_t* a);
+
+void fp2_fprintf(FILE* file, fp2_t* p);
+
+void f2p2_fprintf(FILE* file, f2p2_t* p);
+
+void fp2_print(fp2_t* a);
+
+
+//---------------------------------------------------------
+//
+// calculates
+//
+// (a + b) = res
+//
+// @param a:   first f2p2_t to be added
+// @param b:   second f2p2_t tp be added
+// @param res: saves the result of the addition
+//
+//---------------------------------------------------------
+void f2p2_add(f2p2_t* a, f2p2_t*b, f2p2_t* res);
+
+//---------------------------------------------------------
+//
+// calculates
+//
+// a^(-1)
+//
+// @param a:   fp2
+// @param mod: modulo
+// @param res: multiplicative inverse of a
+//
+//---------------------------------------------------------
+void f2p2_mult_inv(f2p2_t* a, fp_t*mod, f2p2_t* res);
+
+
+void f2p2_mul(f2p2_t* a, f2p2_t* b, f2p2_t* res);
+
+
+//---------------------------------------------------------
+//
+// calculates
+//
+// a * b^(-1) = res in fp2
+//
+// @param a:   dividend
+// @param b:   divisor
+// @param mod: modulo
+// @param res: result
+//
+//---------------------------------------------------------
+void f2p2_div(f2p2_t* a, f2p2_t* b, fp_t*mod, f2p2_t* res);
+
+void f2p2_mod(f2p2_t*a , fp_t*mod, fp2_t* res);
+
 
 #endif
 

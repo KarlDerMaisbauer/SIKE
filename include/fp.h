@@ -8,10 +8,12 @@
 
 
 
-#define  WORDS 12
+#define WORDS 13
+
+#define DWORDS 2*WORDS
 
 typedef uint64_t fp_t[WORDS];
-typedef uint64_t f2p_t[4*WORDS];
+typedef uint64_t f2p_t[DWORDS];
 
 
 //---------------------------------------------------------
@@ -84,6 +86,7 @@ void fp_divm(fp_t* a, fp_t* b, fp_t*mod, fp_t* res);
 
 
 #endif
+
 
 
 
